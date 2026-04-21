@@ -21,7 +21,7 @@
   li { position: relative; padding: 2px 0; line-height: 1.5; }
   .node { cursor: pointer; user-select: none; display: inline-block; padding: 2px 6px; border-radius: 4px; }
   .node:hover { background: var(--p3-light); }
-  .caret::before { content: "▶"; display: inline-block; width: 14px; font-size: 10px; color: var(--p3-blue); transition: transform 0.15s; }
+  .caret::before { content: "\25B6"; display: inline-block; width: 14px; font-size: 10px; color: var(--p3-blue); transition: transform 0.15s; }
   .open > .node .caret::before { transform: rotate(90deg); }
   .leaf .caret::before { content: ""; }
   .leaf > .node { cursor: default; color: var(--muted); }
@@ -38,11 +38,11 @@
 </style>
 </head>
 <body>
-  <h1>P3 SharePoint — Folder Structure</h1>
-  <div class="sub">Drill down: Country → Site type → [Department] → Library → Folders.</div>
+  <h1>P3 SharePoint &mdash; Folder Structure</h1>
+  <div class="sub">Drill down: Country &rarr; Site type &rarr; [Department] &rarr; Library &rarr; Folders.</div>
   <div class="controls">
     <span class="label">Country:</span><select id="country"></select>
-    <input type="text" id="q" placeholder="Search folder name…">
+    <input type="text" id="q" placeholder="Search folder name&hellip;">
     <button onclick="expandAll()">Expand all</button>
     <button class="alt" onclick="collapseAll()">Collapse all</button>
   </div>
@@ -84,7 +84,7 @@ function build(filter){
   if(!rootUl.children.length){treeEl.innerHTML='<div class="empty">No data for this country.</div>'; statsEl.textContent=''; return;}
   treeEl.appendChild(rootUl);
   rootUl.querySelectorAll(':scope > li').forEach(li => li.classList.add('open'));
-  statsEl.textContent = `${shown.length} ${shown.length===1?'country':'countries'} · ${typeTotal} site-type entries · ${leafTotal} leaf folders`;
+  statsEl.textContent = `${shown.length} ${shown.length===1?'country':'countries'} &middot; ${typeTotal} site-type entries &middot; ${leafTotal} leaf folders`;
 }
 function expandAll(){document.querySelectorAll('#tree li').forEach(li=>{if(!li.classList.contains('leaf'))li.classList.add('open');});}
 function collapseAll(){document.querySelectorAll('#tree li').forEach(li=>li.classList.remove('open')); document.querySelectorAll('#tree > ul > li').forEach(li=>li.classList.add('open'));}
