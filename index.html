@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>P3 SharePoint Folder Structure</title>
+<style>
+  :root {
+    --p3-blue: #004685;
+    --p3-light: #D9E1F2;
+    --text: #222;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; margin: 0; padding: 24px; background: #f7f8fa; color: var(--text); }
+  h1 { color: var(--p3-blue); margin: 0 0 8px 0; font-size: 22px; }
+  .sub { color: var(--muted); margin-bottom: 16px; font-size: 13px; }
+  .controls { margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  input[type=text], select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: #fff; }
+  input[type=text] { min-width: 260px; }
+  select { min-width: 160px; cursor: pointer; }
+  button { padding: 8px 14px; background: var(--p3-blue); color: #fff; border: 0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  button.alt { background: #fff; color: var(--p3-blue); border: 1px solid var(--p3-blue); }
+  .label { font-size: 13px; color: var(--muted); margin-right: -4px; }
+  .tree { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  ul { list-style: none; padding-left: 18px; margin: 2px 0; }
+  li { position: relative; padding: 2px 0; line-height: 1.5; }
+  .node { cursor: pointer; user-select: none; display: inline-block; padding: 2px 6px; border-radius: 4px; }
+  .node:hover { background: var(--p3-light); }
+  .caret::before { content: "▶"; display: inline-block; width: 14px; font-size: 10px; color: var(--p3-blue); transition: transform 0.15s; }
+  .open > .node .caret::before { transform: rotate(90deg); }
+  .leaf .caret::before { content: ""; }
+  .leaf > .node { cursor: default; color: var(--muted); }
+  .count { color: var(--muted); font-size: 12px; margin-left: 6px; }
+  li > ul { display: none; }
+  li.open > ul { display: block; }
+  .root > .node { font-weight: 700; color: var(--p3-blue); font-size: 14px; }
+  .hidden { display: none !important; }
+  .match { background: #fff3bf; }
+  .empty { padding: 32px; text-align: center; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+  <h1>P3 SharePoint — Folder Structure</h1>
+  <div class="sub">Click a node to expand. Filter by country, search folder names. Each root = one site-type / template.</div>
+  <div class="controls">
+    <span class="label">Country:</span>
+    <select id="country"></select>
+    <input type="text" id="q" placeholder="Search folder name…">
+    <button onclick="expandAll()">Expand all</button>
+    <button class="alt" onclick="collapseAll()">Collapse all</button>
+  </div>
+  <div id="tree" class="tree"></div>
+
+<script>
+const data = {"CZ / Asset space / Asset (a_cz)": {"Files": {"01 Building": {"Design": {"Project Specification": {"Technical Questionnaires": {}, "Technical Specifications": {}}, "Layouts, Site Plans, Drawings": {}, "Tenant Space Design Documentation": {}, "As-built Documentation": {"Description of Works": {}, "Structural Design": {}, "Installations": {}, "Mechanical & Electrical Installation": {}, "External Works": {}, "Landscaping": {}, "Certificates": {}, "Maintenance Manual": {}, "Complete versions": {}}, "Building Description": {}, "Building Book": {}}, "Measurements": {"Area Calculation": {}, "Lettable Area": {}}, "EPCs & Green Certificates": {"Energy Performance Certifictes (EPCs)": {}, "BREEAM": {}, "Other Green Certificates": {}, "ESG Ratings": {}, "Other": {}}, "Fire & Life Safety": {}, "ESG Technologies": {"PV Panels": {}, "Heat Pumps": {}, "EV Chargers": {}, "[Other]": {}}, "Utility Contracts": {"Electricity": {}, "Gas": {}, "Water": {}, "Waste water": {}, "Other": {}}, "Technical Measures & Reports": {"Expert Assessments": {}, "Technical Reports": {}, "Maintenance Reports": {}, "Testing": {"Completed Tests": {}}, "Warranty Management": {}, "Projects": {}}, "Building Insurance": {"Insurance specific to Building": {}}, "Consumption Metering": {"Electricity": {}, "Gas": {}, "Water": {}, "Waste water": {}, "Other": {"Energies": {}}}, "Other": {"Technical Reports": {}}}, "02 Facility Management": {"Tenders": {}, "FM Contracts": {}, "FM Reports": {}, "FM Correspondence": {}, "FM Manuals & Regulations": {}, "FM Warranty Management": {}, "Other": {"Eneriges allocations": {}}}, "03 Property Management": {"Administration": {"Overview": {}, "Responsibilities": {}, "POAs": {}, "Asset Takeover": {}}, "Manuals": {"Operation Manuals": {}, "Operation Training Protocols": {}, "Maintainance Manuals": {}}, "Service Contracts (individual Asset)": {"Property Management": {}, "Facility Management": {}, "Other": {}}, "Minor Works Contracts (Green FIDICs)": {"--Minor Works Contracts Project Name--": {}}, "Reports": {"PM Reports": {}, "PM Correspondence": {}}, "Insurance claims": {}, "Budgets & Service Charges": {"Calculations, overviews": {}}, "Visits & Inspections": {"Internal Reports, Photos": {}, "Audits": {}}, "Other": {}}, "04 Tenants": {"--Tenant Name--": {"Lease Documents": {"Lease Agreements_Amendments": {}, "Subleases": {}}, "Tenant Fit-Out (ASTI) & Tenant Works": {"Latest Tenant Layout Plan": {}, "Tenants Special Installation Register": {}, "Tenants Own Installation Approvals": {}, "Tenant Works": {}}, "Handover Protocols (HOP)": {}, "Lease (Tenant) Security": {}, "Tenant's Insurance": {}, "Indexation": {}, "Service Charges": {}, "Disputes & Claims": {}, "Relevant Correspondence": {"Landlord's Consents": {}, "Requests": {}, "Other": {}}, "Other (VDR)": {"Tenant Related Permits": {}}, "OLD - PMC ICMS & HUMS": {"HUMS": {}, "ICMS": {}}, "Other (Non-VDR)": {"Lease Invoices": {}, "LOIs & HOTs": {}, "Asset specifications": {}}}, "_Archived": {}, "_Deferred": {}}, "05 Construction": {"Contracts for Works": {"General Construction Contract": {"Contracts & Amendments": {}, "Invoices": {}, "Insurance": {}, "Guarantees": {}, "Warranties": {}, "Handover Protocols": {"Site Handover P3 to GC": {}, "Snagging List": {}, "Handover GC to P3": {}}, "Change Orders": {}}, "Disputes & Claims": {}}, "Contracts for Construction Services": {"Technical Due Diligence Expert": {"Contracts & Amendments": {}, "Invoices": {}, "Other": {}}, "Employer's Representative": {"Contracts & Amendments": {}, "Invoices": {}, "Other": {}}, "Health & Safety Corodinator": {"Contract & Amendments": {}, "Invoices": {}, "Other": {}}, "Other Development Services": {"Contracts & Amendments": {}, "Invoices": {}, "Other": {}}, "Other Construction Services": {"Contracts & Amendments": {}, "Invoices": {}, "Other": {}}}, "Other": {"Reports": {}}}, "06 Environmental": {"Surveys": {}, "Notices": {}, "Permits": {}, "Reports": {}, "Known Issues": {}, "Energy & Compliance Documents": {}, "Other": {}}, "07 Permits & Public Law": {"Zonning & Planning": {"Application": {}, "Issued Permit": {}, "Changes": {}, "Other": {}}, "Building Permits": {"Application": {}, "Issued Permit": {}, "Changes": {}, "Other": {}}, "Urban Development Contracts": {}, "Occupancy Related Permits": {}, "Information from Public Authorities": {}, "Other": {"Operations Permits": {}}}, "08 Ownership": {"Land & Cadastral Register": {}, "Purchase Documents": {"Land Purchase Contract": {}, "Ancillary agreements to purchase": {}}, "Easements & Access Rights": {}, "Building Encumbrance": {}, "Neighbourhood Agreements": {}, "Other": {"Ground Lease": {}}}, "09 Commercalisation": {"Brokers & Agents": {}, "Marketing  Materials": {"Photo & Video Library": {}, "Letting Materials": {}}, "Other": {}}, "10 Underwriting & Valuation": {"Project Underwriting": {}, "Market Research": {}, "Business Plans": {}, "Valuation": {}, "Rent roll": {}, "Capex, Opex": {}}, "11 Asset Level ICM & approvals": {"Leasing": {"_Rejected": {}}, "Capex Opex": {"_Rejected": {}}}}}, "CZ / Asset space / AssetCo (ac_cz)": {"Files": {"01 Corporate": {"Foundation Documents": {}, "Share purchase Agreements": {}, "Shares & Capital": {}, "Extracts & Filings": {}, "Officers": {}, "Minutes & Resolutions": {}, "Powers of Attorney": {}, "Other": {}}, "02 Company Service Agreements": {"Accounting & Tax Services": {}, "External Property Management Agreements": {}, "External Facility Management Agreements": {}, "Other External Services": {"Insurance Contracts": {}}}, "03 Company Level Accounting": {"Bank Accounts": {"Bank Account Agreement": {}, "Bank Account Statements": {}, "Fatca Statements": {}}, "Chart of Accounts - Statutory": {}, "Statutory Accounting Policies": {}, "Financial Statements - Local GAAP": {}, "Trial Balances - Local GAAP": {}, "Fixed Asset Register": {}, "Receivables": {"Tenant Receivables": {}, "Bad Debt Provision": {}, "Other Receivables": {}}, "Prepayments & Deferred Costs": {}, "Payables": {}, "Other Company Accounting": {}}, "04 Company Tax": {"Tax Registrations": {}, "Corporate Tax": {"Corporate Tax Returns": {"--Years--": {}}, "Corporate Tax Calculations": {"--Years--": {}}, "Fixed Asset Register - Corporate Tax": {"--Years--": {}}, "Corporate Tax Losses": {"--Years--": {}}}, "VAT": {"VAT Returns": {"--Years--": {}}, "EC Sales List": {"--Years--": {}}, "Foreign VAT Reclaims (if applicable)": {"--Years--": {}}, "VAT Calculations (if applicable)": {"--Years--": {}}}, "Trade Tax (if applicable)": {}, "Local Income Tax (if applicable)": {}, "Property Tax Returns": {}, "Real Estate Transfer Tax (if applicable)": {}, "Withholding Taxes": {"Withholding Tax Returns": {}, "Certificates of Tax Residence": {}, "Statements of Beneficial Ownership": {}, "Tax Authority Clearances (if applicable)": {}}, "Tax Payables & Receivables": {"Tay Payables": {}, "Tax Receivables": {}, "Certificates of Tax Liabilities": {}}, "Deferred Tax": {}, "Tax Audits & Investigations": {"Corporate Tax": {}, "VAT": {}, "Withholding Tax": {}, "Payroll Taxes": {}, "Other": {}}, "Correspondence with the Tax Authorities": {}, "Tax Rulings": {}, "Other Company Tax": {}}}}, "CZ / Asset space / HoldCo (hc_cz)": {"Files": {"01 Corporate": {"Foundation Documents": {}, "Share purchase Agreements": {}, "Shares & Capital": {}, "Extracts & Filings": {}, "Officers": {}, "Minutes & Resolutions": {}, "Powers of Attorney": {}, "Other": {}}, "02 Company Service Agreements": {"Accounting & Tax Services": {}, "External Property Management Agreements": {}, "External Facility Management Agreements": {}, "Other External Services": {}}, "03 Company Level Accounting": {"Bank Accounts": {"Bank Account Agreement": {}, "Bank Account Statements": {}, "Fatca Statements": {}}, "Chart of Accounts - Statutory": {}, "Statutory Accounting Policies": {}, "Financial Statements - Local GAAP": {}, "Trial Balances - Local GAAP": {}, "Fixed Asset Register": {}, "Receivables": {"Tenant Receivables": {}, "Bad Debt Provision": {}, "Other Receivables": {}}, "Prepayments & Deferred Costs": {}, "Payables": {}, "Other Company Accounting": {}}, "04 Company Tax": {"Tax Registrations": {}, "Corporate Tax": {"Corporate Tax Returns": {"--Years--": {}}, "Corporate Tax Calculations": {"--Years--": {}}, "Fixed Asset Register - Corporate Tax": {"--Years--": {}}, "Corporate Tax Losses": {"--Years--": {}}}, "VAT": {"VAT Retruns": {"--Years--": {}}, "EC Sales List": {"--Years--": {}}, "Foreign VAT Reclaims (if applicable)": {"--Years--": {}}, "VAT Calculations (if applicable)": {"--Years--": {}}}, "Trade Tax (if applicable)": {}, "Local Income Tax (if applicable)": {}, "Property Tax Returns": {}, "Real Estate Transfer Tax (if applicable)": {}, "Withholding Taxes": {"Withholding Tax Returns": {}, "Certificates of Tax Residence": {}, "Statements of Beneficial Ownership": {}, "Tax Authority Clearances (if applicable)": {}}, "Tax Payables & Receivables": {"Tay Payables": {}, "Tax Receivables": {}, "Certificates of Tax Liabilities": {}}, "Deferred Tax": {}, "Tax Audits & Investigations": {"Corporate Tax": {}, "VAT": {}, "Withholding Tax": {}, "Payroll Taxes": {}, "Other": {}}, "Correspondence with the Tax Authorities": {}, "Tax Rulings": {}, "Other Company Tax": {}}}}, "CZ / Asset space / ManCo (mc_cz)": {"Files": {"01 Corporate": {"Foundation Documents": {}, "Share Purchase Agreements": {}, "Shares & Capital": {}, "Extracts & Filings": {}, "Officers": {}, "Minutes & Resolutions": {}, "Powers of Attorney": {}, "Other": {}}, "02 Company Service Agreements": {"Payroll, Accounting & Tax Services": {}, "Office Lease": {}, "Vehicle Lease": {}, "Equipment (Leasing & Purchases)": {}, "IT & IP Services": {}, "Banking Services": {}, "Marketing Services": {}, "Other External Services": {}, "Internal Services": {}}, "03 Company Level Accounting": {"Bank Accounts": {"Bank Account Agreement": {}, "Bank Account Statements": {}, "Fatca Statements": {}}, "Chart of Accounts - Statutory": {}, "Statutory Accounting Policies": {}, "Financial Statements - Local GAAP": {}, "Trial Balances - Local GAAP": {}, "Fixed Asset Register": {}, "Receivables": {"Tenant Receivables": {}, "Bad Debt Provision": {}, "Other Receivables": {}}, "Prepayments & Deferred Costs": {}, "Payables": {}, "Other Company Accounting": {}}, "04 Company Tax": {"Tax Registrations": {}, "Corporate Tax": {"Corporate Tax Returns": {}, "Corporate Tax Calculations": {}, "Fixed Asset Register - Corporate Tax": {}, "Corporate Tax Losses": {}}, "VAT": {"VAT Retruns": {}, "EC Sales List": {}, "Foreign VAT Reclaims (if applicable)": {}, "VAT Calculations (if applicable)": {}}, "Trade Tax (if applicable)": {}, "Local Income Tay (if applicable)": {}, "Property Tax Returns": {}, "Real Estate Transfer Tax (if applicable)": {}, "Withholding Taxes": {"Withholding Tax Returns": {}, "Certificates of Tax Residence": {}, "Statements of Beneficial Ownership": {}, "Tax Authority Clearances (if applicable)": {}}, "Tax Payables & Receivables": {"Tay Payables": {}, "Tax Receivables": {}, "Certificates of Tax Liabilities": {}}, "Deferred Tax": {}, "Tax Audits & Investigations": {"Corporate Tax": {}, "VAT": {}, "Withholding Tax": {}, "Payroll Taxes": {}, "Other": {}}, "Correspondence with the Tax Authorities": {}, "Tax Rulings": {}, "Other Company Tax": {}}}}, "CZ / Asset space / Park (p_cz)": {"Files": {"01 Ownership": {"Land Register": {}, "Purchase Documents": {}, "Easements & Access Rights": {}, "Third Parties Rights": {}, "Other": {}}, "02 Construction": {"Contracts for Works": {}, "GC Guarantees": {}, "Building Warranties": {}, "Handover Protocols": {}, "Contracts for Construction Services": {}, "Disputes & Claims": {}, "Permits": {}, "Other": {}}, "03 Park Operations": {"Operation & Service Agreements": {}, "Technical Matters": {}, "Park Rules & Regulations": {}}, "04 Utilities": {"Utilities Contracts": {"Electricity": {}, "Gas": {}, "Water": {}, "Waste water": {}, "Other": {}}}, "05 Facility Management": {"Tenders": {}, "FM Contracts": {}, "FM Reports": {}, "FM Correspondence": {}, "FM Manuals & Regulations": {}, "FM Warranty Management": {}, "FM Technical": {}, "Other": {"Energies allocations": {}}}, "06 Property Management": {"Administration": {"Overview": {}, "Responsibilities": {}, "POAs": {}, "Asset Takeover": {}}, "Manuals": {"Operation Manuals": {}, "Operation Training Protocols": {}, "Maintainance Manuals": {}}, "Service Contracts (by Park)": {"Property Management": {}, "Facility Management": {}, "Other": {}}, "Minor Works Contracts (Green FIDICs)": {"--Minor Works Contracts Project Name--": {}}, "Reports": {"PM Reports": {}, "PM Correspondence": {}}, "Insurance claims": {}, "Budgets & Service Charges": {"Calculations, Overviews": {}}, "Visits & Inspections": {"Internal Reports, Photos": {}, "Audits": {}}, "Other": {"Park Projects": {}}}, "07 Park Level ICM & approvals": {"Leasing": {"_Rejected": {}}, "Capex Opex": {"_Rejected": {}}}}}, "CZ / Dev&Con / Projeect (dcp_cz)": {"Files": {"Project Plans": {"Planning Documents": {}}, "Project Costs": {"Budget": {}, "Payments & Instalment Certificates": {}}, "Development": {"Plot, Land Information, Exposé": {}, "Calculation of construction costs": {}, "Layout - Test Fit": {}, "Data Room": {}, "Visualization": {}, "Development Model": {}, "HUMs - ICMs": {}}, "Land": {"Land purchase offer": {}, "Land purchase agreement": {}, "Urban development agreement": {}, "Property TDD - TEDD": {"Landplot info (from the owner)": {}, "IGP": {}, "T(E)DD": {}}, "Broker, Agent agreement": {}}, "Construction": {"Time schedules": {}, "Permitting": {"EIA": {}, "Traffic study": {}, "Vendors, Utility providers": {"Electricity": {}, "Water": {}, "Gas": {}, "Fiber optics": {}, "Sewage": {}}}, "Planning, building permit": {"Design": {}, "Statements": {}, "Permit": {}}, "Tenants design": {"Design": {}}, "Contracts": {"GC contract": {}, "Others": {}}, "Construction Process": {"Indicative pricing": {}, "Design & Approval process": {}, "Change Orders": {}, "Construction schedule": {}, "GC correspondence": {}, "Handover process": {}}, "Planners, Consultants": {}, "BREEAM": {"Pre-assessment": {}, "Certificate": {}}, "Property exchange folder": {}, "Finance data": {}, "Neighbours": {}, "Others": {}}, "Leasing": {"Marketing material": {}, "Broker Agreement": {}, "--Customer--": {"Offers": {}, "Development Model, Offer": {}, "Credit analysis": {}, "KYC Information": {}, "Lease, BTS Agreement": {}, "TI - Construction variations": {}}, "Broker Reports": {}, "Market Reports": {}}, "Public relations - Presentations": {"Presentations": {}, "Press, News articles": {}}, "General Documents": {"Schedule": {}, "Meeting Minutes": {}, "Progress Reports": {}, "Control Day Reports": {}, "Photos": {}, "Inspection Reports": {}, "Task List": {}}, "Tenders": {"Construction Services": {"Technical Due Diligence Expert": {"Tender Package": {}, "Proposals": {}}, "Employer's Representative": {"Tender Package": {}, "Proposals": {}}, "Health & Safety": {"Tender Package": {}, "Proposals": {}}, "Other Contruction Services Tenders": {"Tender Package": {}, "Proposals": {}}}, "GC Tender & Technical Specifications": {"A Design": {"Basic Design": {}, "Technology Design": {}, "On & Off Site Utilities": {}}, "B Project Description": {"General P3 Standards": {}, "Tenants Information": {}, "Tenant Works": {}, "Photo Example": {}}, "C Assessments & Surveys": {"Hydro Geological & topology Survey": {}, "TDD & EDD & ESA": {}, "Radon Survey": {}, "Archeological Survey": {}, "Geodetical Measurements": {}}, "D Design & Permitting": {"Design": {}, "infrastructure": {}, "Statements & Permits": {}, "Traffic Study": {}}, "E Bidder Declaration": {"1st Round": {}, "2nd Round": {}, "3rd Round": {}}, "F Bid Form": {"Bid form with Specific Building objects": {}, "Bid form with General Building objects": {}}, "G Extra Works, Optional Items & Potentional Reduction": {"Asset List": {}, "Option List": {}, "List of items which are not part of the Bid form": {}, "List of saving costs": {}}, "H Form D & B Contract": {"Draft of D & B Contracts": {}, "LOI": {}}, "I Tender Questionnaire": {"Tender questionaire": {}}, "J Sample List": {"Materials & Pictures": {}}, "K List of Subcontractors": {"Company name": {}}, "L HR (Project Team)": {"General Info": {}, "Organigram Dedicated to Project": {}}}}}}};
+
+function countLeaves(node) {
+  const keys = Object.keys(node);
+  if (keys.length === 0) return 1;
+  return keys.reduce((s, k) => s + countLeaves(node[k]), 0);
+}
+
+function render(name, node, isRoot=false) {
+  const keys = Object.keys(node);
+  const isLeaf = keys.length === 0;
+  const li = document.createElement('li');
+  if (isRoot) li.classList.add('root');
+  if (isLeaf) li.classList.add('leaf');
+  const span = document.createElement('span');
+  span.className = 'node';
+  span.innerHTML = `<span class="caret"></span>${escapeHtml(name)}${!isLeaf ? `<span class="count">${countLeaves(node)}</span>` : ''}`;
+  li.appendChild(span);
+  span.addEventListener('click', () => { if (!isLeaf) li.classList.toggle('open'); });
+  if (!isLeaf) {
+    const ul = document.createElement('ul');
+    for (const k of keys) ul.appendChild(render(k, node[k]));
+    li.appendChild(ul);
+  }
+  return li;
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Extract country from root key (e.g. "CZ / Asset space / Asset (a_cz)" -> "CZ")
+function countryOf(rootKey) {
+  return rootKey.split('/')[0].trim();
+}
+
+// Populate country dropdown
+const countries = Array.from(new Set(Object.keys(data).map(countryOf))).sort();
+const sel = document.getElementById('country');
+const allOpt = document.createElement('option');
+allOpt.value = '__ALL__';
+allOpt.textContent = `All (${countries.length})`;
+sel.appendChild(allOpt);
+for (const c of countries) {
+  const o = document.createElement('option');
+  o.value = c;
+  o.textContent = c;
+  sel.appendChild(o);
+}
+
+const treeEl = document.getElementById('tree');
+
+function build(filterCountry) {
+  treeEl.innerHTML = '';
+  const rootUl = document.createElement('ul');
+  let count = 0;
+  for (const k of Object.keys(data)) {
+    if (filterCountry !== '__ALL__' && countryOf(k) !== filterCountry) continue;
+    rootUl.appendChild(render(k, data[k], true));
+    count++;
+  }
+  if (count === 0) {
+    treeEl.innerHTML = '<div class="empty">No site types for this country yet.</div>';
+    return;
+  }
+  treeEl.appendChild(rootUl);
+  // Expand roots by default
+  rootUl.querySelectorAll(':scope > li').forEach(li => li.classList.add('open'));
+}
+
+function expandAll(){ document.querySelectorAll('#tree li').forEach(li => { if (!li.classList.contains('leaf')) li.classList.add('open'); }); }
+function collapseAll(){
+  document.querySelectorAll('#tree li').forEach(li => li.classList.remove('open'));
+  document.querySelectorAll('#tree > ul > li').forEach(li => li.classList.add('open'));
+}
+
+sel.addEventListener('change', () => { build(sel.value); document.getElementById('q').value=''; });
+
+// Search
+document.getElementById('q').addEventListener('input', e => {
+  const term = e.target.value.trim().toLowerCase();
+  const all = document.querySelectorAll('#tree li');
+  if (!term) {
+    all.forEach(li => { li.classList.remove('hidden'); const n = li.querySelector(':scope > .node'); if (n) n.classList.remove('match'); });
+    collapseAll();
+    return;
+  }
+  all.forEach(li => { li.classList.add('hidden'); const n = li.querySelector(':scope > .node'); if (n) n.classList.remove('match'); });
+  all.forEach(li => {
+    const label = li.querySelector(':scope > .node').textContent.toLowerCase();
+    if (label.includes(term)) {
+      li.classList.remove('hidden');
+      li.querySelector(':scope > .node').classList.add('match');
+      let p = li.parentElement;
+      while (p && p.id !== 'tree') {
+        if (p.tagName === 'LI') { p.classList.remove('hidden'); p.classList.add('open'); }
+        p = p.parentElement;
+      }
+      li.querySelectorAll('li').forEach(d => d.classList.remove('hidden'));
+      if (!li.classList.contains('leaf')) li.classList.add('open');
+    }
+  });
+});
+
+// Initial render
+build('__ALL__');
+</script>
+</body>
+</html>
